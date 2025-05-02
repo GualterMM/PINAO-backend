@@ -1,5 +1,6 @@
 import { Application, NextFunction, Request, RequestHandler, Response } from "express";
 import { ServerResponse } from "../lib/ServerResponse";
+import { ErrorCode } from "../lib/Exceptions";
 
 /**
  * Middleware used for error handling when an unknown route is called.
@@ -14,10 +15,14 @@ import { ServerResponse } from "../lib/ServerResponse";
 
 export function UnimplementedRouteHandler(app: Application) {
   const middleware: RequestHandler = (req, res, next) => {
-    ServerResponse.Error.NotImplemented(req, res, {
-      endpoint: req.url,
-      method: req.method
-    });
+    ServerResponse.Error.NotImplemented(req, res,
+      {
+        endpoint: req.url,
+        method: req.method
+      },
+      "",
+      ErrorCode.ROUTE_NOT_IMPLEMENTED
+    );
   };
 
   app.use(middleware);

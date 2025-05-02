@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { ErrorCode } from "./Exceptions";
 
 /**
  * Interface for specifying the response status.
@@ -9,7 +10,8 @@ interface ResponseStatusParams {
   statusCode?: number;
   timestamp?: Date;
   errorMessage?: string;
-  errorCode?: string;
+  errorCode?: ErrorCode;
+  errorType?: string;
   errorPayload?: object;
 }
 
@@ -20,17 +22,19 @@ class ResponseStatus {
   public success: boolean;
   public statusCode: number;
   public timestamp: Date;
-  public errorMessage: string;
-  public errorCode: string;
-  public errorPayload: object;
+  public errorMessage: string | undefined;
+  public errorCode: ErrorCode | undefined;
+  public errorType: string | undefined;
+  public errorPayload: object | undefined;
 
   constructor(params: ResponseStatusParams) {
     this.success = params.success ?? false;
     this.statusCode = params.statusCode ?? 500;
     this.timestamp = params.timestamp ?? new Date();
-    this.errorMessage = params.errorMessage ?? "";
-    this.errorCode = params.errorCode ?? "";
-    this.errorPayload = params.errorPayload ?? {};
+    this.errorMessage = params.errorMessage ?? undefined;
+    this.errorCode = params.errorCode ?? undefined;
+    this.errorType = params.errorType ?? undefined;
+    this.errorPayload = params.errorPayload ?? undefined;
   }
 }
 
@@ -57,12 +61,10 @@ export class ServerResponse {
    * @param payload The error payload, for debugging
    * @returns 
    */
-  private static MakeErrorResponse(res: Response, responseStatusParams: ResponseStatusParams, payload?: object, message?: string) {
+  private static MakeErrorResponse(res: Response, responseStatusParams: ResponseStatusParams) {
     const responseStatus = new ResponseStatus({
       ...responseStatusParams,
       success: false,
-      errorPayload: payload ?? {},
-      errorMessage: responseStatusParams.errorMessage ?? (message ?? "") ,
     });
     return res.status(responseStatusParams.statusCode ?? 500).json({ responseStatus });
   }
@@ -88,45 +90,48 @@ export class ServerResponse {
    * Static class used to wrap all failed server responses
    */
   static Error = class {
-    static BadRequest(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.BAD_REQUEST }, payload, message);
+    static BadRequest(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.BAD_REQUEST, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static Unauthorized(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.UNAUTHORIZED }, payload, message);
+    static Unauthorized(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.UNAUTHORIZED, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static Forbidden(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.FORBIDDEN }, payload, message);
+    static Forbidden(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.FORBIDDEN, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static NotFound(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.NOT_FOUND }, payload, message);
+    static NotFound(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.NOT_FOUND, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static Conflict(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.CONFLICT }, payload, message);
+    static Conflict(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.CONFLICT, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static Gone(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.GONE }, payload, message);
+    static Gone(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.GONE, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static InternalServerError(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.INTERNAL_SERVER_ERROR }, payload, message);
+    static InternalServerError(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.INTERNAL_SERVER_ERROR, errorPayload, errorMessage, errorCode, errorType });
     }
 
-    static NotImplemented(req: Request, res: Response, payload?: object, message?: string) {
+    static NotImplemented(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
       return ServerResponse.MakeErrorResponse(res,
         {
+          statusCode: StatusCodes.NOT_IMPLEMENTED,
           errorMessage: "The requested endpoint is not available on the server",
-          statusCode: StatusCodes.NOT_IMPLEMENTED
+          errorPayload,
+          errorCode,
+          errorType 
         },
-        payload, message);
+      )
     }
 
-    static ServiceUnavailable(req: Request, res: Response, payload?: object, message?: string) {
-      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.SERVICE_UNAVAILABLE }, payload);
+    static ServiceUnavailable(req: Request, res: Response, errorPayload?: object, errorMessage?: string, errorCode?: ErrorCode, errorType?: string) {
+      return ServerResponse.MakeErrorResponse(res, { statusCode: StatusCodes.SERVICE_UNAVAILABLE, errorPayload, errorMessage, errorCode, errorType });
     }
   }
 

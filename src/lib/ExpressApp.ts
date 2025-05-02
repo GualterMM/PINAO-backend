@@ -1,5 +1,7 @@
 import express, { Application, Router } from "express";
 import cors from "cors";
+import http from "http";
+
 import { Logger, SetupLogger } from "./Logger";
 import { HttpLogger } from "../middleware/HttpLogger";
 import { UnimplementedRouteHandler } from "../middleware/UnimplementedRouteHandler";
@@ -11,6 +13,7 @@ import { ErrorHandler } from "../middleware/ErrorHandler";
  */
 export class ExpressApp {
   private app: Application;
+  private server: http.Server;
   private corsOptions: Object;
   private publicPath: string;
 
@@ -22,11 +25,12 @@ export class ExpressApp {
 
   constructor(
     corsOptions: Object = ExpressApp.DEFAULT_CORS_OPTIONS,
-    publicPath: string
+    publicPath: string,
   ) {
     this.app = express();
     this.corsOptions = corsOptions;
     this.publicPath = publicPath;
+    this.server = http.createServer(this.app);
 
     this.Init(this.corsOptions, this.publicPath);
   }
@@ -38,9 +42,9 @@ export class ExpressApp {
    */
   public StartServer(port: string, host: string) {
     Logger.info(`Server starting, listening on port ${port}`);
-
     const hostUrl = `${host}:${port}`;
-    this.app.listen(port, () => {
+
+    this.server.listen(port, () => {
       Logger.info(`Server running on port ${port}`);
       Logger.info(`Server available at ${hostUrl}`);
 
@@ -108,6 +112,14 @@ export class ExpressApp {
   }
 
   /**
+   * Returns the raw `http` server
+   * @returns `http.server()`
+   */
+  public GetHTTPServer() {
+    return this.server;
+  }
+
+  /**
    * Prints all available routes in the console.
    * @param hostUrl Host URL used by the server
    */
@@ -159,6 +171,4 @@ export class ExpressApp {
         : '<complex:' + thing.toString() + '>'
     }
   }
-
-
 }
