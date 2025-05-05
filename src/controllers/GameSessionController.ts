@@ -3,15 +3,15 @@ import { Request, Response, NextFunction } from 'express';
 import { ServerResponse } from '../lib/ServerResponse';
 import WebSocketService from '../services/WebSocketService';
 
-export class GameSessionsController {
+export class GameSessionController {
   public static async SendGameMessage(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: sessionId } = req.params;
       const { message } = req.body;
 
-      const payload = WebSocketService.SendMessageToSession(sessionId, message);
+      // const payload = WebSocketService.SendMessageToSession(sessionId, message);
 
-      return ServerResponse.Success.Created(req, res, { message: payload });
+      return ServerResponse.Success.Created(req, res, { message });
     } catch (error) {
       next(error);
     }

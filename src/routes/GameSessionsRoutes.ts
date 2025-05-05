@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import { GameSessionsController } from "../controllers/GameSessionsController";
+import { GameSessionController } from "../controllers/GameSessionController";
 
 const router = Router();
 
-router.post('/game-session/:id/message', GameSessionsController.SendGameMessage);
+router.post('/game-session/:id/message', GameSessionController.SendGameMessage);
 
 export { router as GameSessionsRouter };
