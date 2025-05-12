@@ -2,6 +2,9 @@ import { BusinessLogicError, ErrorCode } from "../lib/Exceptions";
 import { GameSession, GameSessionParams } from "../models/GameSession";
 import { Sabotage } from "../interfaces/GlobalInterfaces";
 import { GameMessage } from "../models/GameMessage";
+import { pickRandomElements } from "../lib/utils/Utils";
+import sabotages from "../assets/Sabotages.json";
+import { Logger } from "../lib/Logger";
 
 export class GameCoordinatorService {
   private static sessions = new Map<string, GameSession>();
@@ -37,23 +40,23 @@ export class GameCoordinatorService {
     gameSession.setGameState(gameState);
   }
 
-  public static setAvailableSabotages(sessionId: string, sabotages: Array<Sabotage>, version: number) {
+  public static generateSabotages(maxSabotages: number): Array<Sabotage> {
+    const sabotagePool = sabotages.currentSabotagePool as Array<Sabotage>;
+
+    return pickRandomElements(sabotagePool, maxSabotages);
+  }
+
+  public static setAvailableSabotages(sessionId: string, sabotages: Array<Sabotage>) {
     const gameSession = this.getGameSession(sessionId);
 
     gameSession.setAvailableSabotages(sabotages);
-    gameSession.setAvailableSabotagesVersion(version);
+    Logger.debug(`Current sabotages: ${JSON.stringify(sabotages)}`);
   }
 
   public static getAvailableSabotages(sessionId: string): Array<Sabotage> | null {
     const gameSession = this.getGameSession(sessionId);
 
     return gameSession.getAvailableSabotages();
-  }
-
-  public static getAvailableSabotagesVersion(sessionId: string) {
-    const gameSession = this.getGameSession(sessionId);
-
-    return gameSession.getAvailableSabotagesVersion();
   }
 
   public static pushSabotageToQueue(sessionId: string, sabotage: Sabotage) {
@@ -64,10 +67,16 @@ export class GameCoordinatorService {
     return payload;
   }
 
+  public static getSabotageQueue(sessionId: string){
+    const gameSession = this.getGameSession(sessionId);
+
+    return gameSession.getSabotagesQueue();
+  }
+
   public static sendSabotages(sessionId: string) {
     const gameSession = this.getGameSession(sessionId);
     const sabotages = gameSession.getSabotagesQueue();
-    gameSession.setCurrentSabotages(sabotages);
+    gameSession.setActiveSabotages(sabotages);
     gameSession.resetSabotageQueue();
   }
 

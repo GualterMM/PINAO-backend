@@ -2,26 +2,29 @@ import Joi from "joi";
 
 const SabotageSchema = Joi.object({
   id: Joi.string().required(),
-  name: Joi.string().required(),
-  effect: Joi.string().required(),
-  duration: Joi.number().required(),
+  name: Joi.string(),
+  description: Joi.string(),
+  multiplier: Joi.number(),
+  duration: Joi.number(),
+  playerName: Joi.string(),
+  playerMessage: Joi.string()
 });
 
 const GameStateSchema = Joi.object({
-  sessionId: Joi.string().required(),
-  status: Joi.string().valid("setup", "live", "paused", "over").required(),
-  gameDuration: Joi.number().required(),
-  currentDuration: Joi.number().required(),
-  graceDuration: Joi.number().required(),
+  sessionId: Joi.string(),
+  status: Joi.string().valid("setup", "active", "paused", "over").required(),
+  gameDuration: Joi.number(),
+  currentDuration: Joi.number(),
+  graceDuration: Joi.number(),
+
+  maxSabotageLimit: Joi.number(),
+  currentSabotageLimit: Joi.number(),
+  canReceiveSabotage: Joi.boolean(),
 });
 
 const SabotagesSchema = Joi.object({
-  gameSabotageLimit: Joi.number().required(),
-  currentSabotageLimit: Joi.number().required(),
-  canReceiveSabotage: Joi.boolean().required(),
-  hasCurrentSabotagePoolBeenConsumed: Joi.boolean().required(),
-  currentSabotagePool: Joi.array().items(SabotageSchema).required(),
-  activeSabotagePool: Joi.array().items(SabotageSchema).required(),
+  availableSabotagePool: Joi.array().items(SabotageSchema).required(),
+  activeSabotagePool: Joi.array().required(),
 });
 
 const UsedSabotageSchema = SabotageSchema.keys({

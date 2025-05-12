@@ -1,7 +1,9 @@
 export interface Sabotage {
   id: string,
   name: string,
-  baseDuration: number,
+  description: string,
+  multiplier?: number
+  duration?: number,
   playerName?: string,
   playerMessage?: string
 }
@@ -12,7 +14,7 @@ export interface Sabotages {
 }
 
 export interface GameState {
-  sessionId: string,
+  sessionId?: string,
   status: "setup" | "active" | "paused" | "over",
   gameDuration?: number,
   currentDuration?: number,
@@ -21,7 +23,11 @@ export interface GameState {
   maxSabotageLimit?: number,
   currentSabotageLimit?: number,
   canReceiveSabotage?: boolean,
-  availableSabotagePoolVersion?: number,
+
+  error?: {
+    message: string,
+    payload: object
+  }
 }
 
 export interface PlayerStatistics {

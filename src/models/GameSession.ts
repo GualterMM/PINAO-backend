@@ -29,14 +29,6 @@ export class GameSession {
     return this.sabotages;
   }
 
-  public getAvailableSabotagesVersion() {
-    return this.gameState.availableSabotagePoolVersion;
-  }
-
-  public setAvailableSabotagesVersion(version: number) {
-    this.gameState.availableSabotagePoolVersion = version;
-  }
-
   public getAvailableSabotages(): Array<Sabotage> {
     return this.sabotages.availableSabotagePool;
   }
@@ -51,6 +43,13 @@ export class GameSession {
 
   public pushSabotageToQueue(sabotage: Sabotage) {
 
+    if(!this.isSessionActive()) {
+      throw new BusinessLogicError({
+        errorMessage: "Player has paused the game",
+        errorCode: ErrorCode.GAME_LOGIC_SESSION_NOT_ACTIVE
+      });
+    }
+
     if (this.sabotagesQueue.length >= (this.gameState.currentSabotageLimit ?? 1)) {
       throw new BusinessLogicError({
         errorMessage: "Sabotage queue is full",
@@ -58,7 +57,7 @@ export class GameSession {
       });
     }
 
-    if (!this.sabotages.availableSabotagePool.includes(sabotage)) {
+    if (!this.sabotages.availableSabotagePool.some(item => item.id === sabotage.id)) {
       throw new BusinessLogicError({
         errorMessage: "Invalid sabotage",
         errorCode: ErrorCode.GAME_LOGIC_INVALID_SABOTAGE
@@ -90,13 +89,13 @@ export class GameSession {
     return this.sabotagesQueue;
   }
 
-  public getCurrentSabotages() {
+  public getActiveSabotages() {
     return this.sabotages.activeSabotagePool;
   }
 
-  public setCurrentSabotages(sabotages: Array<Sabotage>): Array<Sabotage> {
+  public setActiveSabotages(sabotages: Array<Sabotage>): Array<Sabotage> {
     const validSabotages: Array<Sabotage | undefined> = sabotages.map((item) => {
-      if (this.sabotages.availableSabotagePool.includes(item)) {
+      if (this.sabotages.availableSabotagePool.some(availableItem => availableItem.id === item.id)) {
         return item
       }
     });
@@ -119,7 +118,7 @@ export class GameSession {
   }
 
   public isSessionOver(): boolean {
-    if (Date.now() >= (this.gameState.gameDuration ?? Date.now())) {
+    if ((this.gameState.currentDuration ?? Date.now()) >= (this.gameState.gameDuration ?? Date.now())) {
       return true;
     }
 

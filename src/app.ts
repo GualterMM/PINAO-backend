@@ -18,6 +18,6 @@ app.SetupUnimplementedRouteHandler();
 
 const server = app.GetHTTPServer();
 if (!server) throw new Error("HTTP server not initialized");
-WebSocketService.Init(server);
+WebSocketService.init(server);
 
 app.StartServer("8080", `http://localhost`);
