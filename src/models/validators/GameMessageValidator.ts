@@ -24,7 +24,7 @@ const GameStateSchema = Joi.object({
 
 const SabotagesSchema = Joi.object({
   availableSabotagePool: Joi.array().items(SabotageSchema).required(),
-  activeSabotagePool: Joi.array().required(),
+  activeSabotagePool: Joi.array().items(SabotageSchema).required(),
 });
 
 const UsedSabotageSchema = SabotageSchema.keys({
