@@ -10,10 +10,20 @@ export class GameSessionController {
       const { id: sessionId } = req.params;
       const { sabotage } = req.body;
 
-      const payload = GameCoordinatorService.pushSabotageToQueue(sessionId, sabotage as Sabotage)//WebSocketService.SendMessageToSession(sessionId, message);
+      const payload = GameCoordinatorService.pushSabotageToQueue(sessionId, sabotage as Sabotage)
 
       return ServerResponse.Success.Created(req, res, { payload });
     } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async GetSessions(req: Request, res: Response, next: NextFunction) {
+    try {
+      const payload = GameCoordinatorService.getAllGameSessions();
+
+      return ServerResponse.Success.OK(req, res, { ...payload });
+    } catch(error) {
       next(error);
     }
   }

@@ -4,13 +4,15 @@ export interface Sabotage {
   description: string,
   multiplier?: number
   duration?: number,
+  playerId?: string,
   playerName?: string,
   playerMessage?: string
 }
 
 export interface Sabotages {
   availableSabotagePool: Array<Sabotage>,
-  activeSabotagePool: Array<Sabotage>
+  activeSabotagePool: Array<Sabotage>,
+  sabotageQueue: Array<Sabotage>,
 }
 
 export interface GameState {

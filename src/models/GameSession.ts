@@ -1,3 +1,4 @@
+import { Logger } from "../lib/Logger";
 import { GameState, Sabotage, Sabotages } from "../interfaces/GlobalInterfaces";
 import { BusinessLogicError, ErrorCode } from "../lib/Exceptions";
 
@@ -9,12 +10,10 @@ export interface GameSessionParams {
 export class GameSession {
   private gameState: GameState;
   private sabotages: Sabotages;
-  private sabotagesQueue: Array<Sabotage>;
 
   constructor(params: GameSessionParams) {
     this.gameState = params.gameState;
     this.sabotages = params.sabotages;
-    this.sabotagesQueue = [];
   }
 
   public getGameState() {
@@ -25,7 +24,7 @@ export class GameSession {
     this.gameState = gameState;
   }
 
-  public getSabotages(){
+  public getSabotages() {
     return this.sabotages;
   }
 
@@ -38,19 +37,25 @@ export class GameSession {
   }
 
   public getSabotagesQueue() {
-    return this.sabotagesQueue;
+    return this.sabotages.sabotageQueue;
   }
 
   public pushSabotageToQueue(sabotage: Sabotage) {
-
-    if(!this.isSessionActive()) {
+    if (!this.isSessionActive()) {
       throw new BusinessLogicError({
         errorMessage: "Player has paused the game",
         errorCode: ErrorCode.GAME_LOGIC_SESSION_NOT_ACTIVE
       });
     }
 
-    if (this.sabotagesQueue.length >= (this.gameState.currentSabotageLimit ?? 1)) {
+    if (this.sabotages.sabotageQueue.some(item => item.playerId === sabotage.playerId)) {
+      throw new BusinessLogicError({
+        errorMessage: "You have already selected a sabotage",
+        errorCode: ErrorCode.GAME_LOGIC_INVALID_SABOTAGE
+      });
+    }
+
+    if (this.sabotages.sabotageQueue.length >= (this.gameState.currentSabotageLimit ?? 1)) {
       throw new BusinessLogicError({
         errorMessage: "Sabotage queue is full",
         errorCode: ErrorCode.GAME_LOGIC_SABOTAGE_QUEUE_FULL
@@ -64,13 +69,6 @@ export class GameSession {
       });
     }
 
-    if (!this.isGracePeriodOver()) {
-      throw new BusinessLogicError({
-        errorMessage: "Player is in grace period",
-        errorCode: ErrorCode.GAME_LOGIC_PLAYER_IN_GRACE_PERIOD
-      });
-    }
-
     if (this.isSessionOver()) {
       throw new BusinessLogicError({
         errorMessage: "Game session has ended",
@@ -78,15 +76,16 @@ export class GameSession {
       })
     }
 
-    this.sabotagesQueue.push(sabotage);
+    const sabotageCard = this.sabotages.availableSabotagePool.find(item => item.id === sabotage.id);
+    this.sabotages.sabotageQueue.push({ ...sabotageCard, ...sabotage });
 
-    return this.sabotagesQueue;
+    return this.sabotages.sabotageQueue;
   }
 
   public resetSabotageQueue() {
-    this.sabotagesQueue = [];
+    this.sabotages.sabotageQueue = [];
 
-    return this.sabotagesQueue;
+    return this.sabotages.sabotageQueue;
   }
 
   public getActiveSabotages() {
@@ -109,12 +108,12 @@ export class GameSession {
     return this.sabotages.activeSabotagePool;
   }
 
-  private isGracePeriodOver(): boolean {
-    if ((this.gameState.currentDuration ?? -1) < (this.gameState.graceDuration ?? 0)) {
-      return false;
-    }
+  public increaseCurrentSabotageLimit(){
+    if((this.gameState.currentSabotageLimit ?? 1) < (this.gameState.maxSabotageLimit ?? 1)) {
+      this.gameState.currentSabotageLimit = (this.gameState.currentSabotageLimit ?? 1) + 1;
 
-    return true;
+      Logger.info(`Sabotage limit increased to ${this.gameState.currentSabotageLimit}`);
+    }
   }
 
   public isSessionOver(): boolean {
@@ -138,6 +137,7 @@ export class GameSession {
     const sabotages: Sabotages = {
       availableSabotagePool: [],
       activeSabotagePool: [],
+      sabotageQueue: []
     }
 
     return { gameState, sabotages };

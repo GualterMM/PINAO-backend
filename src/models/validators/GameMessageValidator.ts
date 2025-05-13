@@ -6,6 +6,7 @@ const SabotageSchema = Joi.object({
   description: Joi.string(),
   multiplier: Joi.number(),
   duration: Joi.number(),
+  playerId: Joi.string(),
   playerName: Joi.string(),
   playerMessage: Joi.string()
 });
@@ -25,6 +26,7 @@ const GameStateSchema = Joi.object({
 const SabotagesSchema = Joi.object({
   availableSabotagePool: Joi.array().items(SabotageSchema).required(),
   activeSabotagePool: Joi.array().items(SabotageSchema).required(),
+  sabotageQueue: Joi.array().items(SabotageSchema).required(),
 });
 
 const UsedSabotageSchema = SabotageSchema.keys({

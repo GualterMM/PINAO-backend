@@ -5,6 +5,7 @@ import { GameMessage } from "../models/GameMessage";
 import { pickRandomElements } from "../lib/utils/Utils";
 import sabotages from "../assets/Sabotages.json";
 import { Logger } from "../lib/Logger";
+import GameWebSocketService from "./GameWebSocketService";
 
 export class GameCoordinatorService {
   private static sessions = new Map<string, GameSession>();
@@ -38,6 +39,10 @@ export class GameCoordinatorService {
     const gameState = message.getGameState();
 
     gameSession.setGameState(gameState);
+  }
+
+  public static getAllGameSessions() {
+    return GameWebSocketService.getAllSessions();
   }
 
   public static generateSabotages(maxSabotages: number): Array<Sabotage> {
@@ -78,6 +83,20 @@ export class GameCoordinatorService {
     const sabotages = gameSession.getSabotagesQueue();
     gameSession.setActiveSabotages(sabotages);
     gameSession.resetSabotageQueue();
+  }
+
+  public static updateSabotageLimit(sessionId: string){
+    const gameSession = this.getGameSession(sessionId);
+    
+    const gameState = gameSession.getGameState();
+    const currentSabotageLimit = gameState.currentSabotageLimit ?? 1;
+    const maxSabotageLimit = gameState.maxSabotageLimit ?? 1;
+
+    Logger.info(`Current sabotage limit: ${currentSabotageLimit}`);
+    Logger.info(`Maximum sabotage limit: ${maxSabotageLimit}`);
+    if(currentSabotageLimit < maxSabotageLimit) {
+      gameSession.increaseCurrentSabotageLimit();
+    } 
   }
 
   public static isSessionOver(sessionId: string): boolean {
