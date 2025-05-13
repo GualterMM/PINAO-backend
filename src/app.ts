@@ -32,4 +32,4 @@ server.on("upgrade", (req, socket, head) => {
   }
 });
 
-app.StartServer("3000", `http://localhost`);
+app.StartServer(Number(process.env.PORT) || 3000, process.env.HOSTNAME || `0.0.0.0`);

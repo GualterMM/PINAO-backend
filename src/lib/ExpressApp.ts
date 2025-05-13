@@ -40,11 +40,11 @@ export class ExpressApp {
    * @param port Server port to listen on
    * @param host Host URL, for route printing purposes
    */
-  public StartServer(port: string, host: string) {
+  public StartServer(port: number, host: string) {
     Logger.info(`Server starting, listening on port ${port}`);
     const hostUrl = `${host}:${port}`;
 
-    this.server.listen(port, () => {
+    this.server.listen(port, host, undefined, () => {
       Logger.info(`Server running on port ${port}`);
       Logger.info(`Server available at ${hostUrl}`);
 
