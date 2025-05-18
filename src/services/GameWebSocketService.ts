@@ -8,6 +8,7 @@ import { GameSession } from "../models/GameSession";
 import { GameMessage } from "../models/GameMessage";
 import { GameCoordinatorService } from "./GameCoordinatorService";
 import ViewerWebSocketService from "./ViewerWebSocketService";
+import { savePlayerStats } from "../lib/Database";
 
 class GameWebSocketService {
   private wss: WebSocketServer;
@@ -102,6 +103,7 @@ class GameWebSocketService {
 
     const gameState = message.getGameState();
     const sabotages = message.getSabotages();
+    const statistics = message.getStatistics()?.player
     const { status, canReceiveSabotage } = gameState;
 
     // If game is not active, send nothing
@@ -110,8 +112,22 @@ class GameWebSocketService {
     }
 
     // If game is over, handle statistics
-    if (status === "over") {
-      // TODO: Upload statistics to database and close session
+    if (status === "over" && statistics) {
+      const { name, time, success, points, kills } = statistics
+
+      const playerName = name || "Anonymous";
+      const finalScore = points || 0;
+      const intSucess = success ? 1 : 0
+      
+      try {
+        savePlayerStats(sessionId, playerName, finalScore, kills, intSucess, time)
+      } catch (err){
+        console.log(err)
+      }
+
+      ws.close()
+
+      return 
     }
 
     // If game is active, actuate sabotages according to client state

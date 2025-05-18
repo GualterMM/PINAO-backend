@@ -2,28 +2,28 @@
   "currentSabotagePool": [
     {
       "id": "sab_vision_impair",
-      "name": "Optical Implant Compromised",
-      "description": "Vision range is limited"
+      "name": "Implante Ótico Invadido",
+      "description": "A visão é escurecida"
     },
     {
       "id": "sab_control_invert",
-      "name": "Voltage Inversion",
-      "description": "Movement and camera controls have been inverted"
+      "name": "Inversão de Voltagem",
+      "description": "A direção do movimento é invertida"
     },
     {
       "id": "sab_weapon_jam",
-      "name": "Weapon Firewall Breach",
-      "description": "Weapons will ocasionally jam, reload them to unjam"
+      "name": "Invasão do Firewall Bélico",
+      "description": "Armas travam ocasionalmente, recarregue para destravar"
     },
     {
       "id": "sab_weapon_lock",
-      "name": "Magnetic Locks Engaged",
-      "description": "You cannot switch weapons"
+      "name": "Travas Magnéticas Acionadas",
+      "description": "Incapaz de trocar de arma"
     },
     {
       "id": "sab_movement_inertia",
-      "name": "Inertia Modules Engaged",
-      "description": "Movement is more slippery, as if walking on ice"
+      "name": "Módulos Inerciais Acionados",
+      "description": "A movimentação fica escorregadia, como se estivesse andando no gelo"
     }
   ]
 }
