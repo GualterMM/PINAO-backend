@@ -43,8 +43,7 @@ class GameWebSocketService {
       try {
         const raw = JSON.parse(data.toString());
         const gameMessage = GameMessage.fromObject(raw);
-        console.log(data.toString());
-
+        
         this.handleGameClientMessage(ws, sessionId, gameMessage);
         ViewerWebSocketService.broadcastToViewers(sessionId, gameMessage);
       } catch (err) {
@@ -102,7 +101,7 @@ class GameWebSocketService {
     GameCoordinatorService.updateGameSessionState(sessionId, message);
 
     const gameState = message.getGameState();
-    const { type } = message;
+    const sabotages = message.getSabotages();
     const { status, canReceiveSabotage } = gameState;
 
     // If game is not active, send nothing
@@ -118,25 +117,26 @@ class GameWebSocketService {
     // If game is active, actuate sabotages according to client state
     if (status === "active") {
       const gameSession = GameCoordinatorService.getGameSession(sessionId);
+      let hasServerSetActiveSabotages = false
 
-      Logger.info(`Can receive sabotage? ${canReceiveSabotage}, Sabotage Queue: ${GameCoordinatorService.getSabotageQueue(sessionId)}`)
       // Send sabotages on queue if any exist and client can receive them
       if (canReceiveSabotage && GameCoordinatorService.getSabotageQueue(sessionId).length > 0) {
         GameCoordinatorService.sendSabotages(sessionId);
+        hasServerSetActiveSabotages = true
 
         const availableSabotagePool = GameCoordinatorService.generateSabotages(5);
         GameCoordinatorService.setAvailableSabotages(sessionId, availableSabotagePool)
       }
 
       // Send ticks to reset active sabotage, if they're active
-      if (GameCoordinatorService.getActiveSabotages(sessionId).length > 0) {
-        GameCoordinatorService.tickGameSession(sessionId)
+      if (!hasServerSetActiveSabotages) {
+        GameCoordinatorService.setActiveSabotages(sessionId, sabotages?.activeSabotagePool ?? [])
       }
 
-      console.log(GameCoordinatorService.getGameSession(sessionId).getSabotagesQueue())
-
+      const updatedGameSession = GameCoordinatorService.getGameSession(sessionId)
+      
       // Send message back to client
-      const gameMessage = new GameMessage(gameSession.getGameState(), gameSession.getSabotages());
+      const gameMessage = new GameMessage(updatedGameSession.getGameState(), updatedGameSession.getSabotages());
 
       this.sendMessageToClient(ws, gameMessage);
 

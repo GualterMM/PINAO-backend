@@ -89,8 +89,8 @@ export class GameSession {
   }
 
   public resetSabotageQueue() {
-    this.sabotages.sabotageQueue = [];
-
+    this.sabotages.sabotageQueue = new Array();
+    
     return this.sabotages.sabotageQueue;
   }
 
@@ -99,13 +99,7 @@ export class GameSession {
   }
 
   public setActiveSabotages(sabotages: Array<Sabotage>): Array<Sabotage> {
-    const validSabotages: Array<Sabotage | undefined> = sabotages.map((item) => {
-      if (this.sabotages.availableSabotagePool.some(availableItem => availableItem.id === item.id)) {
-        return item
-      }
-    });
-
-    this.sabotages.activeSabotagePool = validSabotages as Array<Sabotage>;
+    this.sabotages.activeSabotagePool = sabotages;
 
     return this.sabotages.activeSabotagePool;
   }

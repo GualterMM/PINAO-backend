@@ -2,6 +2,8 @@ import { IncomingMessage } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 
 import { Logger } from "../lib/Logger";
+import { GameMessage } from "../models/GameMessage";
+import { GameCoordinatorService } from "./GameCoordinatorService";
 
 class ViewerWebSocketService {
   private viewerWSS: WebSocketServer;
@@ -48,15 +50,15 @@ class ViewerWebSocketService {
     }
   }
 
-  public broadcastToViewers(sessionId: string, message: any) {
+  public broadcastToViewers(sessionId: string, message: GameMessage) {
+    const sabotages = GameCoordinatorService.getGameSession(sessionId).getSabotages()
+    const moddedMessage = new GameMessage(message.getGameState(), sabotages, message.getStatistics())
     const viewers = this.viewersPerSession.get(sessionId);
     if (!viewers) return;
 
-    const payload = typeof message === "string" ? message : JSON.stringify(message);
-
     for (const client of viewers) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(payload);
+        client.send(JSON.stringify(moddedMessage.toJSON()));
       }
     }
   }

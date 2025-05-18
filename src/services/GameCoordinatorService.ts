@@ -80,25 +80,9 @@ export class GameCoordinatorService {
   public static sendSabotages(sessionId: string) {
     const gameSession = this.getGameSession(sessionId);
     const sabotages = gameSession.getSabotagesQueue();
-    
-    gameSession.activeSabotageTicker = true;
 
     gameSession.setActiveSabotages(sabotages);
     gameSession.resetSabotageQueue();
-  }
-
-  public static tickGameSession(sessionId: string) {
-    const gameSession = this.getGameSession(sessionId);
-    if (gameSession.activeSabotageTicker) {
-      gameSession.tick();
-    }
-
-    if (gameSession.ticker === 10){
-      gameSession.activeSabotageTicker = false;
-      gameSession.ticker = 0;
-
-      this.resetSabotages(sessionId)
-    }
   }
 
   public static resetSabotages(sessionId: string) {
@@ -109,6 +93,11 @@ export class GameCoordinatorService {
   public static getActiveSabotages(sessionId: string) {
     const gameSession = this.getGameSession(sessionId);
     return gameSession.getActiveSabotages();
+  }
+
+  public static setActiveSabotages(sessionId: string, sabotages: Array<Sabotage>) {
+    const gameSession = this.getGameSession(sessionId);
+    gameSession.setActiveSabotages(sabotages);
   }
 
   public static updateSabotageLimit(sessionId: string){
