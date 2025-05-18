@@ -45,17 +45,17 @@ const PlayerStatisticsSchema = Joi.object({
   success: Joi.boolean().required(),
   points: Joi.number().required(),
   kills: Joi.number().required(),
-  bestKillStreak: Joi.number().required(),
-  mostUsedWeapon: Joi.string().required(),
-  sabotagesReceived: Joi.number().required(),
-  boostsReceived: Joi.number().required(),
-  timeBoostsReceived: Joi.number().required(),
-  weaponsUpgradesMade: Joi.number().required(),
+  bestKillStreak: Joi.number(),
+  mostUsedWeapon: Joi.string(),
+  sabotagesReceived: Joi.number(),
+  boostsReceived: Joi.number(),
+  timeBoostsReceived: Joi.number(),
+  weaponsUpgradesMade: Joi.number(),
 });
 
 const StatisticsSchema = Joi.object({
   player: PlayerStatisticsSchema.required(),
-  saboteurs: Joi.array().items(SaboteurStatisticsSchema).required(),
+  saboteurs: Joi.array().items(SaboteurStatisticsSchema),
 });
 
 export const GameMessageSchema = Joi.object({

@@ -9,12 +9,6 @@ export class GameSessionValidator {
     body: Joi.object({
       sabotage: Joi.object({
         id: Joi.string().required(),
-        name: Joi.string().required(),
-        description: Joi.string().required(),
-        multiplier: Joi.number().required(),
-        duration: Joi.number().required(),
-        playerName: Joi.string().required(),
-        playerMessage: Joi.string().required(),
       })
     })
   }

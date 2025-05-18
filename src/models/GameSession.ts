@@ -10,10 +10,16 @@ export interface GameSessionParams {
 export class GameSession {
   private gameState: GameState;
   private sabotages: Sabotages;
+  public activeSabotageTicker: boolean = false
+  public ticker: number = 0;
 
   constructor(params: GameSessionParams) {
     this.gameState = params.gameState;
     this.sabotages = params.sabotages;
+  }
+
+  public tick() {
+    this.ticker++;
   }
 
   public getGameState() {
@@ -98,10 +104,6 @@ export class GameSession {
         return item
       }
     });
-
-    if (validSabotages.length === 0) {
-      return [];
-    }
 
     this.sabotages.activeSabotagePool = validSabotages as Array<Sabotage>;
 

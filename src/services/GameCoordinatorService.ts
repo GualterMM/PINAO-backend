@@ -55,7 +55,6 @@ export class GameCoordinatorService {
     const gameSession = this.getGameSession(sessionId);
 
     gameSession.setAvailableSabotages(sabotages);
-    Logger.debug(`Current sabotages: ${JSON.stringify(sabotages)}`);
   }
 
   public static getAvailableSabotages(sessionId: string): Array<Sabotage> | null {
@@ -81,8 +80,35 @@ export class GameCoordinatorService {
   public static sendSabotages(sessionId: string) {
     const gameSession = this.getGameSession(sessionId);
     const sabotages = gameSession.getSabotagesQueue();
+    
+    gameSession.activeSabotageTicker = true;
+
     gameSession.setActiveSabotages(sabotages);
     gameSession.resetSabotageQueue();
+  }
+
+  public static tickGameSession(sessionId: string) {
+    const gameSession = this.getGameSession(sessionId);
+    if (gameSession.activeSabotageTicker) {
+      gameSession.tick();
+    }
+
+    if (gameSession.ticker === 10){
+      gameSession.activeSabotageTicker = false;
+      gameSession.ticker = 0;
+
+      this.resetSabotages(sessionId)
+    }
+  }
+
+  public static resetSabotages(sessionId: string) {
+    const gameSession = this.getGameSession(sessionId);
+    gameSession.setActiveSabotages([]);
+  }
+
+  public static getActiveSabotages(sessionId: string) {
+    const gameSession = this.getGameSession(sessionId);
+    return gameSession.getActiveSabotages();
   }
 
   public static updateSabotageLimit(sessionId: string){
@@ -91,9 +117,7 @@ export class GameCoordinatorService {
     const gameState = gameSession.getGameState();
     const currentSabotageLimit = gameState.currentSabotageLimit ?? 1;
     const maxSabotageLimit = gameState.maxSabotageLimit ?? 1;
-
-    Logger.info(`Current sabotage limit: ${currentSabotageLimit}`);
-    Logger.info(`Maximum sabotage limit: ${maxSabotageLimit}`);
+    
     if(currentSabotageLimit < maxSabotageLimit) {
       gameSession.increaseCurrentSabotageLimit();
     } 

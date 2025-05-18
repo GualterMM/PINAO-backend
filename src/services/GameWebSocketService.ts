@@ -43,7 +43,7 @@ class GameWebSocketService {
       try {
         const raw = JSON.parse(data.toString());
         const gameMessage = GameMessage.fromObject(raw);
-        Logger.debug(data.toString());
+        console.log(data.toString());
 
         this.handleGameClientMessage(ws, sessionId, gameMessage);
         ViewerWebSocketService.broadcastToViewers(sessionId, gameMessage);
@@ -102,6 +102,7 @@ class GameWebSocketService {
     GameCoordinatorService.updateGameSessionState(sessionId, message);
 
     const gameState = message.getGameState();
+    const { type } = message;
     const { status, canReceiveSabotage } = gameState;
 
     // If game is not active, send nothing
@@ -114,34 +115,28 @@ class GameWebSocketService {
       // TODO: Upload statistics to database and close session
     }
 
-    //FIXME: Fix activeSabotagePool not clearing
-
-    /**
-     * If game is active:
-     * 1 - Check if client can receive sabotages
-     * 2 - If no, return
-     * 3 - If yes, send sabotages from queue (if any exists)
-     * 4 - Refresh available sabotage pool
-     */
+    // If game is active, actuate sabotages according to client state
     if (status === "active") {
       const gameSession = GameCoordinatorService.getGameSession(sessionId);
-      let hasGameStateUpdated = false;
 
+      Logger.info(`Can receive sabotage? ${canReceiveSabotage}, Sabotage Queue: ${GameCoordinatorService.getSabotageQueue(sessionId)}`)
+      // Send sabotages on queue if any exist and client can receive them
       if (canReceiveSabotage && GameCoordinatorService.getSabotageQueue(sessionId).length > 0) {
         GameCoordinatorService.sendSabotages(sessionId);
 
         const availableSabotagePool = GameCoordinatorService.generateSabotages(5);
-        GameCoordinatorService.setAvailableSabotages(sessionId, availableSabotagePool);
-        hasGameStateUpdated = true;
+        GameCoordinatorService.setAvailableSabotages(sessionId, availableSabotagePool)
       }
 
-      if (gameState.currentDuration && gameState.currentDuration % 60000 === 0) {
-        GameCoordinatorService.updateSabotageLimit(sessionId);
-        hasGameStateUpdated = true;
+      // Send ticks to reset active sabotage, if they're active
+      if (GameCoordinatorService.getActiveSabotages(sessionId).length > 0) {
+        GameCoordinatorService.tickGameSession(sessionId)
       }
 
+      console.log(GameCoordinatorService.getGameSession(sessionId).getSabotagesQueue())
+
+      // Send message back to client
       const gameMessage = new GameMessage(gameSession.getGameState(), gameSession.getSabotages());
-      Logger.info(JSON.stringify(gameMessage));
 
       this.sendMessageToClient(ws, gameMessage);
 

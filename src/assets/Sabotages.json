@@ -3,77 +3,27 @@
     {
       "id": "sab_vision_impair",
       "name": "Optical Implant Compromised",
-      "description": "Vision range is limited",
-      "duration": 10,
-      "multiplier": 1.3
+      "description": "Vision range is limited"
     },
     {
       "id": "sab_control_invert",
       "name": "Voltage Inversion",
-      "description": "Movement and camera controls have been inverted",
-      "duration": 10,
-      "multiplier": 1.5
+      "description": "Movement and camera controls have been inverted"
     },
     {
       "id": "sab_weapon_jam",
       "name": "Weapon Firewall Breach",
-      "description": "Weapons will ocasionally jam, reload them to unjam",
-      "duration": 10,
-      "multiplier": 1.2
+      "description": "Weapons will ocasionally jam, reload them to unjam"
     },
     {
       "id": "sab_weapon_lock",
       "name": "Magnetic Locks Engaged",
-      "description": "You cannot switch weapons",
-      "duration": 10,
-      "multiplier": 1.8
+      "description": "You cannot switch weapons"
     },
     {
       "id": "sab_movement_inertia",
       "name": "Inertia Modules Engaged",
-      "description": "Movement is more slippery, as if walking on ice",
-      "duration": 10,
-      "multiplier": 1.5
-    },
-    {
-      "id": "sab_env_turret_machine_gun",
-      "name": "Intrusion Countermeasures Activated",
-      "description": "A machine gun turret has been deployed to stop you"
-    },
-    {
-      "id": "sab_env_turret_rocket",
-      "name": "Intrusion Countermeasures Activated",
-      "description": "A rocket launcher turret has been deployed to stop you"
-    },
-    {
-      "id": "sab_enemy_melee_swarm",
-      "name": "Peacekeeper Reinforcement",
-      "description": "A reinforcement unit of Peacekeepers have been deployed"
-    },
-    {
-      "id": "sab_enemy_pistol_swarm",
-      "name": "Trooper Reinforcement",
-      "description": "A reinforcement unit of Troopers have been deployed"
-    },
-    {
-      "id": "sab_enemy_shotgun_swarm",
-      "name": "Enforcer Reinforcement",
-      "description": "A reinforcement unit of Enforcers have been deployed"
-    },
-    {
-      "id": "sab_enemy_sniper_swarm",
-      "name": "Sniper Reinforcement",
-      "description": "A reinforcement unit of Snipers have been deployed"
-    },
-    {
-      "id": "sab_boss_grenadier",
-      "name": "Special Unit: Grenadier",
-      "description": "A grenadier boss unit has been deployed to stop you"
-    },
-    {
-      "id": "sab_boss_flamethrower",
-      "name": "Special Unit: Flame Trooper",
-      "description": "A flamethrower-wielding boss unit has been deployed to stop you"
+      "description": "Movement is more slippery, as if walking on ice"
     }
   ]
 }

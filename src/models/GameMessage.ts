@@ -5,11 +5,13 @@ import { GameMessageSchema } from "./validators/GameMessageValidator";
 
 
 export class GameMessage {
+  public type: "gameUpdate" | "sabotageOver";
   private gameState: GameState;
   private sabotages?: Sabotages;
   private statistics?: Statistics;
 
-  constructor(gameState: GameState, sabotages?: Sabotages, statistics?: Statistics) {
+  constructor(gameState: GameState, sabotages?: Sabotages, statistics?: Statistics, type?: "gameUpdate" | "sabotageOver") {
+    this.type = type ?? "gameUpdate";
     this.gameState = gameState;
     this.sabotages = sabotages;
     this.statistics = statistics;
