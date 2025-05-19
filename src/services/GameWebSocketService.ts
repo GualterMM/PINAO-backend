@@ -13,7 +13,8 @@ import { savePlayerStats } from "../lib/Database";
 class GameWebSocketService {
   private wss: WebSocketServer;
   private sessions = new Map<string, WebSocket>();
-  private MAX_SESSIONS = 4;
+  private sessionManagers = new Map<string, Record<string, any>>;
+  private MAX_SESSIONS = 16;
 
   constructor() {
     this.wss = new WebSocketServer({ noServer: true });
@@ -37,6 +38,10 @@ class GameWebSocketService {
 
     const sessionId = uuidv4();
     this.sessions.set(sessionId, ws);
+    this.sessionManagers.set(sessionId, {
+      lastTick: Date.now(),
+      maxSessionDuration: Date.now() + (4 * 60 * 1000)
+    })
 
     this.setupGameSession(ws, sessionId);
 
@@ -58,6 +63,7 @@ class GameWebSocketService {
 
     ws.on("close", () => {
       this.sessions.delete(sessionId);
+      this.sessionManagers.delete(sessionId);
       GameCoordinatorService.revokeGameSession(sessionId);
 
       Logger.info(`Session ${sessionId} (${ws.url}) closed`);
@@ -99,6 +105,30 @@ class GameWebSocketService {
   }
 
   private handleGameClientMessage(ws: WebSocket, sessionId: string, message: GameMessage) {
+    const sessionManager = this.sessionManagers.get(sessionId);
+
+    // Close connections that are sending messages faster than default rick rate (base is 1000ms, threshold is 800ms)
+    // Close hanging connections (more than 4 minutes)
+    if (sessionManager) {
+      
+      const tick = Date.now();
+      if ((tick - sessionManager.lastTick) <= 800) {
+        ws.send(JSON.stringify({ error: "Message tick rate is under one second, closing connection" }));
+        ws.close();
+      }
+
+      if (tick > sessionManager.maxSessionDuration) {
+        ws.send(JSON.stringify({ error: "Maximum session duration reached, closing connection" }));
+        ws.close();
+      }
+
+      sessionManager.lastTick = tick
+    } else {
+      // Close connection if no session manager is associated with that session
+      ws.send(JSON.stringify({ error: "No session manager found for session, closing connection" }));
+      ws.close()
+    }
+
     GameCoordinatorService.updateGameSessionState(sessionId, message);
 
     const gameState = message.getGameState();
