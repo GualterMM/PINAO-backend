@@ -113,6 +113,9 @@ class GameWebSocketService {
 
     // If game is over, handle statistics
     if (status === "over" && statistics) {
+      Logger.info(`Saving game statistics from ${sessionId}`)
+      ws.close()
+
       const { name, time, success, points, kills } = statistics
 
       const playerName = name || "Anonymous";
@@ -121,18 +124,16 @@ class GameWebSocketService {
       
       try {
         savePlayerStats(sessionId, playerName, finalScore, kills, intSucess, time)
+        Logger.info(`Game statistics from ${sessionId} saved successfully`)
       } catch (err){
-        console.log(err)
+        Logger.info(`Error saving games statistics from ${sessionId}: ${err}`)
       }
-
-      ws.close()
 
       return 
     }
 
     // If game is active, actuate sabotages according to client state
     if (status === "active") {
-      const gameSession = GameCoordinatorService.getGameSession(sessionId);
       let hasServerSetActiveSabotages = false
 
       // Send sabotages on queue if any exist and client can receive them

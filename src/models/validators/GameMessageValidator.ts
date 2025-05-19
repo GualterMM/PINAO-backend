@@ -13,6 +13,7 @@ const SabotageSchema = Joi.object({
 
 const GameStateSchema = Joi.object({
   sessionId: Joi.string(),
+  playerName: Joi.string(),
   status: Joi.string().valid("setup", "active", "paused", "over").required(),
   gameDuration: Joi.number(),
   currentDuration: Joi.number(),

@@ -17,6 +17,7 @@ export interface Sabotages {
 
 export interface GameState {
   sessionId?: string,
+  playerName?: string,
   status: "setup" | "active" | "paused" | "over",
   gameDuration?: number,
   currentDuration?: number,
